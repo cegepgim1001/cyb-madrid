@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYB-400: Advanced Cybersecurity Operations & Threat Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate & Teal -->
+    <!-- Application Structure Plan: The SPA is designed with a three-part structure navigated by a sticky header: 1) Overview, 2) Interactive Weekly Breakdown, and 3) Core Skills visualization. This thematic structure was chosen over a linear document format to improve usability. It allows students to quickly grasp the course's purpose and objectives, interactively explore the detailed weekly schedule without being overwhelmed by a wall of text, and visualize how the content maps to professional roles. The user flow encourages exploration, starting broad and allowing for deep dives into specific areas of interest. -->
+    <!-- Visualization & Content Choices: 
+        - Course Ponderation: Report Info -> 1:2:2 Ponderation (SOC:IR:TH). Goal -> Compare proportions. Viz -> Donut Chart. Interaction -> Hover tooltips show weight. Justification -> More intuitive and visually engaging for representing parts of a whole than text. Library -> Chart.js.
+        - Weekly Schedule: Report Info -> 8 weeks of detailed daily topics. Goal -> Organize & Inform. Presentation -> Interactive tabbed/button interface for weeks. Interaction -> Click a week to dynamically display its content. Justification -> Prevents overwhelming the user with information, making the dense schedule easily digestible. Method -> Vanilla JS and Tailwind CSS.
+        - Lab Setup: Report Info -> List of software and steps. Goal -> Organize. Presentation -> A styled card with checklist-style items. Justification -> Visually separates this prerequisite task, making it clearer. Method -> HTML/Tailwind.
+        - Core Skills: Report Info -> Topics related to SOC, IR, TH. Goal -> Organize & Relate. Presentation -> Three distinct content cards. Justification -> Synthesizes information scattered throughout the syllabus into thematic, role-based summaries, adding significant value. Method -> HTML/Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .active-week {
+            background-color: #0d9488 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl text-slate-800">CYB-400</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="text-slate-600 hover:bg-teal-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Overview</a>
+                        <a href="#breakdown" class="text-slate-600 hover:bg-teal-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Weekly Breakdown</a>
+                        <a href="#skills" class="text-slate-600 hover:bg-teal-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Core Skills</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="title-section" class="text-center mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Advanced Cybersecurity Operations & Threat Intelligence</h1>
+            <p class="mt-4 text-lg text-slate-600">An 8-week intensive journey into the world of SOC, DFIR, and Threat Hunting.</p>
+        </section>
+
+        <section id="overview" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-slate-800 border-b-4 border-teal-500 pb-2 mb-8">Course Overview</h2>
+            <div class="grid md:grid-cols-5 gap-8">
+                <div class="md:col-span-3">
+                    <h3 class="text-2xl font-semibold text-slate-700 mb-4">Course Description</h3>
+                    <p class="text-slate-600 mb-6">This 8-week intensive course is designed to equip cybersecurity students with the advanced, hands-on skills required to excel in modern security operations. The curriculum is a robust blend of three critical domains: security analysis, incident response, and proactive threat hunting. Students will learn to identify, analyze, and respond to threats using industry-standard tools and methodologies. The course culminates in a capstone exercise where students will apply their combined knowledge to a real-world breach scenario.</p>
+                    
+                    <h3 class="text-2xl font-semibold text-slate-700 mb-4">Learning Objectives</h3>
+                    <ul class="list-disc list-inside space-y-2 text-slate-600">
+                        <li>Analyze network traffic and system logs to identify malicious activity.</li>
+                        <li>Triage and prioritize security alerts using a SIEM system.</li>
+                        <li>Conduct live response and digital forensic analysis on endpoints.</li>
+                        <li>Perform memory and network forensics to uncover evidence of compromise.</li>
+                        <li>Develop and test hypotheses to proactively hunt for threats.</li>
+                        <li>Utilize threat intelligence, such as the MITRE ATT&CK framework.</li>
+                        <li>Document findings and create comprehensive incident response reports.</li>
+                        <li>Build and manage a virtual lab environment for security testing.</li>
+                    </ul>
+                </div>
+                <div class="md:col-span-2">
+                     <div class="bg-white p-6 rounded-lg shadow-lg border border-slate-200">
+                        <h3 class="text-2xl font-semibold text-slate-700 mb-4">Virtual Lab Setup</h3>
+                        <p class="text-slate-600 mb-4">A foundational skill used throughout the course. Students must set up this VirtualBox environment before Week 1.</p>
+                        <div class="space-y-3">
+                            <h4 class="font-semibold text-slate-700">Software Requirements:</h4>
+                            <ul class="list-none space-y-2 text-sm">
+                                <li class="flex items-center"><span class="text-teal-500 mr-2">▶</span>Oracle VirtualBox (latest)</li>
+                                <li class="flex items-center"><span class="text-teal-500 mr-2">▶</span>Kali Linux VirtualBox Image</li>
+                                <li class="flex items-center"><span class="text-teal-500 mr-2">▶</span>Windows 10/11 Developer VM</li>
+                                <li class="flex items-center"><span class="text-teal-500 mr-2">▶</span>Security Onion VM</li>
+                            </ul>
+                            <h4 class="font-semibold text-slate-700 pt-2">Key Steps:</h4>
+                            <ol class="list-none space-y-2 text-sm">
+                                <li class="flex items-start"><span class="font-bold text-teal-600 mr-2">1.</span>Install VirtualBox & Extension Pack.</li>
+                                <li class="flex items-start"><span class="font-bold text-teal-600 mr-2">2.</span>Configure a "Host-Only" virtual network.</li>
+                                <li class="flex items-start"><span class="font-bold text-teal-600 mr-2">3.</span>Import/Install VMs with NAT & Host-Only adapters.</li>
+                                <li class="flex items-start"><span class="font-bold text-teal-600 mr-2">4.</span>Take a "clean" snapshot of each configured VM.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="breakdown" class="mb-12 md:mb-16">
+            <h2 class="text-3xl font-bold text-slate-800 border-b-4 border-teal-500 pb-2 mb-8">Interactive Weekly Breakdown</h2>
+            <p class="text-slate-600 mb-8 text-center">Select a week to view its detailed topics and lab exercises. The course progressively builds skills, starting with foundational analysis and moving towards advanced, proactive threat hunting.</p>
+            <div id="week-selector" class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+            </div>
+            <div id="week-details" class="bg-white p-6 md:p-8 rounded-lg shadow-lg border border-slate-200 min-h-[300px]">
+            </div>
+        </section>
+
+        <section id="skills">
+            <h2 class="text-3xl font-bold text-slate-800 border-b-4 border-teal-500 pb-2 mb-8">Core Skills & Certification Alignment</h2>
+             <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <p class="text-slate-600 mb-6">The course is structured with a ponderation of 1:2:2, emphasizing Incident Response and Threat Hunting skills while building upon a strong Security Operations foundation. This approach prepares students for multiple roles and aligns with key OffSec certifications.</p>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-sky-500">
+                            <h4 class="text-xl font-bold text-sky-700">SOC-200 (OSDA) Focus</h4>
+                            <p class="text-slate-600 mt-2 text-sm">Skills in network/log analysis, SIEM operations, and alert triage.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-amber-500">
+                            <h4 class="text-xl font-bold text-amber-700">IR-200 (OSIR) Focus</h4>
+                            <p class="text-slate-600 mt-2 text-sm">Mastering the IR lifecycle, live response, and deep-dive digital forensics on Windows/Linux.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-rose-500">
+                            <h4 class="text-xl font-bold text-rose-700">TH-200 (OSTH) Focus</h4>
+                            <p class="text-slate-600 mt-2 text-sm">Developing a proactive mindset, creating hunt hypotheses, and using advanced techniques to find hidden adversaries.</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="chart-container">
+                        <canvas id="ponderationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 mt-16">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-slate-400 text-sm">
+            <p>CYB-400 Course Outline | Interactive Syllabus</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const navLinks = document.querySelectorAll('header nav a');
+            const header = document.querySelector('header');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        const headerHeight = header.offsetHeight;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            const courseData = {
+                1: {
+                    title: "Foundations of Security Operations", focus: "SOC-200", days: [
+                        { day: 1, title: "Course Intro & The Modern SOC", topics: "Course objectives, OffSec paths, SOC roles/structures.", lab: "Lab environment tour and VM connectivity verification." },
+                        { day: 2, title: "Network Traffic Analysis (NTA)", topics: "TCP/IP recap, Wireshark, Protocol analysis (HTTP, DNS, SMB).", lab: "Analyzing PCAPs for reconnaissance, exploitation, and C2." },
+                        { day: 3, title: "Log Management & SIEM Intro", topics: "Logging principles, Windows Event Logs, Linux Syslog, Security Onion.", lab: "Ingesting logs into SIEM and writing basic queries." },
+                        { day: 4, title: "Alert Triage & Analysis", topics: "Alert lifecycle, True vs. False positives, Prioritization.", lab: "Triaging alerts in Security Onion, correlating network/host data." }
+                    ]
+                },
+                2: {
+                    title: "Security Analysis & Intro to IR", focus: "SOC-200 / IR-200", days: [
+                        { day: 1, title: "Endpoint Security Monitoring", topics: "EDR concepts, Using Sysmon for deep visibility.", lab: "Configuring Sysmon and analyzing logs for attack patterns." },
+                        { day: 2, title: "Introduction to Incident Response", topics: "IR lifecycle (PICERL), Building an IR toolkit.", lab: "Responding to a simulated alert; initial data collection." },
+                        { day: 3, title: "Digital Forensics Fundamentals", topics: "Order of Volatility, Evidence handling, Forensic imaging.", lab: "Using dd and FTK Imager for forensic imaging." },
+                        { day: 4, title: "Windows Live Response", topics: "Collecting volatile data from live Windows systems.", lab: "Performing data collection on a simulated 'patient zero'." }
+                    ]
+                },
+                3: {
+                    title: "Digital Forensics (DFIR)", focus: "IR-200", days: [
+                        { day: 1, title: "Windows Filesystem Forensics", topics: "MFT analysis, Prefetch, Shimcache for execution evidence.", lab: "Analyzing a disk image to find executed programs." },
+                        { day: 2, title: "Windows Registry Forensics", topics: "Key registry hives, uncovering user activity and persistence.", lab: "Analyzing registry hives to identify malware persistence." },
+                        { day: 3, title: "Linux Live Response & Forensics", topics: "Key Linux artifacts, volatile data collection.", lab: "Investigating a compromised Linux web server." },
+                        { day: 4, title: "Memory Forensics", topics: "Intro to Volatility 3, analyzing memory dumps.", lab: "Analyzing a memory dump to identify a malicious process." }
+                    ]
+                },
+                4: {
+                    title: "Advanced IR & Midterm", focus: "IR-200", days: [
+                        { day: 1, title: "Midterm Review Session", topics: "Review of all SOC-200 and IR-200 topics.", lab: "Walkthrough of a guided mini-incident." },
+                        { day: 2, title: "Midterm Exam", topics: "Combination of theoretical and hands-on lab exam.", lab: "Analysis of logs, network traffic, and a disk image." },
+                        { day: 3, title: "Network Forensics", topics: "Reconstructing sessions, extracting files from PCAP.", lab: "Carving files and credentials from network captures." },
+                        { day: 4, title: "Incident Reporting", topics: "Writing effective reports for technical/executive audiences.", lab: "Writing a full incident report based on lab evidence." }
+                    ]
+                },
+                5: {
+                    title: "From Response to Proactive Hunting", focus: "IR-200 / TH-200", days: [
+                        { day: 1, title: "Introduction to Threat Hunting", topics: "Proactive vs. reactive mindset, the threat hunting loop.", lab: "Brainstorming threat activities and data sources." },
+                        { day: 2, title: "Hypothesis-Driven Hunting", topics: "Developing hunt hypotheses from threat intelligence (MITRE ATT&CK).", lab: "Developing a hypothesis for lateral movement and writing SIEM queries." },
+                        { day: 3, title: "Hunting with SIEM and EDR", topics: "Advanced queries, hunting for anomalies, data stacking.", lab: "Using advanced searches to hunt for suspicious PowerShell." },
+                        { day: 4, title: "Hunting for Persistence", topics: "Deep dive into Windows persistence techniques.", lab: "Proactively hunting for novel persistence in Registry/filesystem." }
+                    ]
+                },
+                6: {
+                    title: "Adversary Tactics & Hunting", focus: "TH-200", days: [
+                        { day: 1, title: "Hunting for Lateral Movement", topics: "Analyzing PsExec, WinRM, RDP; correlating logs.", lab: "Hunting for evidence of attacker movement between machines." },
+                        { day: 2, title: "Hunting for Credential Dumping", topics: "Understanding Mimikatz, hunting for LSASS access.", lab: "Using Sysmon to hunt for signs of credential dumping." },
+                        { day: 3, title: "Hunting on Linux Systems", topics: "Hunting for LOLBAS abuse, web shells, rootkits.", lab: "Hunting for a web shell and privilege escalation on Linux." },
+                        { day: 4, title: "Leveraging Threat Intelligence", topics: "Operationalizing intelligence, MITRE ATT&CK mapping, YARA.", lab: "Creating a YARA rule and hunting for malware variants." }
+                    ]
+                },
+                7: {
+                    title: "Advanced Threat Hunting", focus: "TH-200", days: [
+                        { day: 1, title: "Hunting with Basic Malware Analysis", topics: "Static/dynamic analysis to extract IOCs for hunting.", lab: "Analyzing malware to generate IOCs and hunting for them." },
+                        { day: 2, title: "Hunting for Command & Control (C2)", topics: "Analyzing C2 patterns (beaconing, DNS tunneling).", lab: "Using Zeek logs to identify beaconing activity." },
+                        { day: 3, "title": "Scripting for Hunt Automation", topics: "Using Python/PowerShell to automate hunt tasks.", lab: "Writing a script to parse and enrich firewall logs." },
+                        { day: 4, "title": "Building a Hunt Program", topics: "Maturity models, measuring effectiveness, documentation.", lab: "Developing a formal hunt plan for a MITRE ATT&CK technique." }
+                    ]
+                },
+                8: {
+                    title: "Capstone & Final Exam", focus: "All", days: [
+                        { day: 1, title: "Capstone Scenario: The Breach (Part 1)", topics: "Full-scale investigation from a single alert.", lab: "Initial triage, live response, and forensic analysis." },
+                        { day: 2, title: "Capstone Scenario: The Breach (Part 2)", topics: "Continuing the investigation to find full scope.", lab: "Hunting for lateral movement, persistence, and exfiltration." },
+                        { day: 3, title: "Final Exam Review Session", topics: "Review of advanced IR and all TH-200 topics.", lab: "Discussion of capstone scenario and final Q&A." },
+                        { day: 4, title: "Final Exam", topics: "Comprehensive, hands-on final exam.", lab: "Investigating a complex, multi-stage attack from start to finish." }
+                    ]
+                }
+            };
+
+            const weekSelector = document.getElementById('week-selector');
+            const weekDetails = document.getElementById('week-details');
+            
+            function displayWeek(weekNumber) {
+                const weekData = courseData[weekNumber];
+                if (!weekData) return;
+
+                let content = `<div class="p-4"><h3 class="text-2xl font-bold text-teal-700 mb-2">Week ${weekNumber}: ${weekData.title}</h3>`;
+                content += `<p class="text-sm font-semibold text-slate-500 mb-6">Primary Focus: ${weekData.focus}</p>`;
+                content += '<div class="space-y-4">';
+
+                weekData.days.forEach(day => {
+                    content += `
+                        <div class="border-l-4 border-slate-200 pl-4">
+                            <h4 class="font-bold text-slate-800">Day ${day.day}: ${day.title}</h4>
+                            <p class="text-sm text-slate-600 mt-1"><strong class="font-semibold">Topics:</strong> ${day.topics}</p>
+                            <p class="text-sm text-slate-600 mt-1"><strong class="font-semibold">Lab:</strong> ${day.lab}</p>
+                        </div>
+                    `;
+                });
+                
+                content += '</div></div>';
+                weekDetails.innerHTML = content;
+                
+                document.querySelectorAll('#week-selector button').forEach(btn => {
+                    btn.classList.remove('active-week');
+                });
+                document.querySelector(`#week-selector button[data-week='${weekNumber}']`).classList.add('active-week');
+            }
+
+            for (let i = 1; i <= 8; i++) {
+                const button = document.createElement('button');
+                button.innerText = `Week ${i}`;
+                button.dataset.week = i;
+                button.className = 'px-4 py-2 bg-white text-teal-700 font-semibold rounded-lg shadow-sm hover:bg-teal-100 transition duration-200';
+                button.addEventListener('click', () => displayWeek(i));
+                weekSelector.appendChild(button);
+            }
+            
+            displayWeek(1);
+
+            const ctx = document.getElementById('ponderationChart').getContext('2d');
+            const ponderationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SOC-200 Focus', 'IR-200 Focus', 'TH-200 Focus'],
+                    datasets: [{
+                        label: 'Course Ponderation',
+                        data: [1, 2, 2],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ],
+                        borderColor: [
+                            '#3B82F6',
+                            '#F59E0B',
+                            '#EF4444'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                color: '#334155'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(0);
+                                        label += `${percentage}% Weight`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
+
+
+
+
