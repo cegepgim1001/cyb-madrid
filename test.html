@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Forensics Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Neutral Professional -->
+    <!-- Application Structure Plan: The SPA reframes the linear lecture into a more engaging, non-linear learning tool. A fixed sidebar navigation allows users to instantly jump between key forensic themes: Core Principles, The Forensic Process (broken into three interactive steps), and a Toolkit. The main content area dynamically displays the selected section. This structure prioritizes a logical, process-based workflow (Collect -> Handle -> Image) over the original document's linear page format, enhancing usability and allowing for self-paced, topic-focused learning. -->
+    <!-- Visualization & Content Choices: Volatility: An interactive stacked block diagram replaces a static list to visually reinforce the concept's hierarchy. Interaction: Clicking a layer reveals details. Justification: More engaging and memorable. Chain of Custody: An interactive, clickable timeline visualizes the process flow. Interaction: Clicking steps reveals case-study details. Justification: Clarifies the sequence of actions. Imaging Comparison: A clear side-by-side table compares disk vs. memory imaging for direct analysis. Hashing: A live, interactive SHA-256 hash generator demonstrates the concept practically. Justification: Hands-on learning is more effective than passive reading. All are built with custom HTML/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #3f3c3a;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active {
+            color: #1e6091;
+            background-color: #eaf2f7;
+            border-left-color: #1e6091;
+        }
+        .nav-link:hover {
+            color: #1e6091;
+            background-color: #eaf2f7;
+            border-left-color: #76c893;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .volatility-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .volatility-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2.5rem;
+            padding-left: 2.5rem;
+            border-left: 2px solid #d1d5db;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.6rem;
+            top: 0.1rem;
+            width: 1.1rem;
+            height: 1.1rem;
+            border-radius: 9999px;
+            background-color: #fff;
+            border: 3px solid #6b7280;
+            transition: all 0.2s ease;
+        }
+        .timeline-item:hover .timeline-dot {
+            background-color: #1e6091;
+            border-color: #1e6091;
+        }
+        .solution-container {
+            transition: all 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="relative min-h-screen md:flex">
+        <!-- Sidebar Navigation -->
+        <aside class="md:w-64 w-full bg-white/80 backdrop-blur-lg md:h-screen md:sticky md:top-0 shadow-sm">
+            <div class="p-6">
+                <h1 class="text-xl font-bold text-gray-800">Digital Forensics</h1>
+                <p class="text-sm text-gray-500 mt-1">Interactive Lecture</p>
+            </div>
+            <nav class="flex flex-col p-4">
+                <a href="#intro" class="nav-link active py-2.5 px-4 rounded-lg font-medium">Introduction</a>
+                <a href="#principles" class="nav-link py-2.5 px-4 rounded-lg font-medium">Core Principles</a>
+                <a href="#process" class="nav-link py-2.5 px-4 rounded-lg font-medium">The Forensic Process</a>
+                <a href="#toolkit" class="nav-link py-2.5 px-4 rounded-lg font-medium">Forensic Toolkit</a>
+                <a href="#summary" class="nav-link py-2.5 px-4 rounded-lg font-medium">Summary & Lab</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-10">
+            <!-- Introduction Section -->
+            <section id="intro" class="content-section active">
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-800">Welcome to Digital Forensics Fundamentals</h2>
+                    <p class="mt-4 text-lg text-gray-600">This interactive guide covers the essential concepts and procedures in digital forensics, a critical skill in modern cybersecurity. We will explore how to properly identify, preserve, and analyze digital evidence. By the end of this session, you will have a foundational understanding of the forensic process.</p>
+                </div>
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Learning Objectives</h3>
+                    <p class="mt-2 text-gray-600">This module is designed to provide you with the core skills needed to begin a journey into digital forensics. You will learn the 'why' behind the procedures, not just the 'how'.</p>
+                    <ul class="mt-6 space-y-4">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mr-4">✓</div>
+                            <span class="text-gray-700"><strong>Define</strong> digital forensics and its role in an investigation.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mr-4">✓</div>
+                            <span class="text-gray-700"><strong>Explain</strong> the Order of Volatility and prioritize evidence collection.</span>
+                        </li>
+                        <li class="flex items-start">
+                             <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mr-4">✓</div>
+                            <span class="text-gray-700"><strong>Describe</strong> correct procedures for handling digital evidence to maintain integrity.</span>
+                        </li>
+                        <li class="flex items-start">
+                             <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mr-4">✓</div>
+                            <span class="text-gray-700"><strong>Articulate</strong> the importance of the Chain of Custody.</span>
+                        </li>
+                        <li class="flex items-start">
+                             <div class="flex-shrink-0 w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mr-4">✓</div>
+                            <span class="text-gray-700"><strong>Differentiate</strong> between a simple file copy and a forensic image.</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Core Principles Section -->
+            <section id="principles" class="content-section">
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-800">The Golden Rules of Forensics</h2>
+                    <p class="mt-4 text-lg text-gray-600">Every action in a digital forensic investigation is governed by two unbreakable principles. Adhering to these rules ensures that the evidence is defensible and the findings are reliable. They are the foundation upon which all other procedures are built.</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 mt-8">
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-2xl font-semibold text-gray-800">1. Maintain Evidence Integrity</h3>
+                        <p class="mt-4 text-gray-600">The evidence must not be altered or damaged in any way from its original state. Every action taken to collect and analyze the data must be justifiable, repeatable, and documented. This is why investigators **never** work on the original evidence; they work on a perfect, bit-for-bit copy known as a forensic image.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-sm">
+                        <h3 class="text-2xl font-semibold text-gray-800">2. Remain Objective</h3>
+                        <p class="mt-4 text-gray-600">An investigator's job is to follow the digital trail, not to prove a pre-conceived theory. They must analyze the evidence without bias and present the facts as they are found, regardless of who those facts may implicate. The data tells the story, and the investigator is merely the interpreter.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- The Forensic Process Section -->
+            <section id="process" class="content-section">
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-800">The Forensic Process: An Interactive Guide</h2>
+                    <p class="mt-4 text-lg text-gray-600">A forensic investigation follows a structured process to ensure all evidence is collected soundly and handled properly. This section breaks down the three core stages: collecting volatile data, handling evidence with a strict chain of custody, and creating verifiable forensic images. Explore each step to understand its critical role.</p>
+                </div>
+
+                <!-- Step 1: Order of Volatility -->
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Step 1: Evidence Collection & The Order of Volatility</h3>
+                    <p class="mt-2 text-gray-600">The first rule of evidence collection is to gather the most temporary (volatile) data first. Data exists in different states of persistence. Failing to follow this order can result in the permanent loss of critical evidence like running malware or active network connections. Click on each layer below to learn more.</p>
+                    <div class="mt-6 md:flex gap-6 items-start">
+                        <div id="volatility-stack" class="flex-1 space-y-2">
+                            <div class="volatility-item rounded-lg p-4 bg-red-100 border border-red-200" data-content="volatility-1">
+                                <h4 class="font-bold text-red-800">1. Registers, CPU Cache</h4>
+                                <p class="text-sm text-red-700">Most Volatile</p>
+                            </div>
+                            <div class="volatility-item rounded-lg p-4 bg-orange-100 border border-orange-200" data-content="volatility-2">
+                                <h4 class="font-bold text-orange-800">2. Network State</h4>
+                            </div>
+                            <div class="volatility-item rounded-lg p-4 bg-yellow-100 border border-yellow-200" data-content="volatility-3">
+                                <h4 class="font-bold text-yellow-800">3. RAM (Memory)</h4>
+                            </div>
+                            <div class="volatility-item rounded-lg p-4 bg-cyan-100 border border-cyan-200" data-content="volatility-4">
+                                <h4 class="font-bold text-cyan-800">4. Temp Files / Swap Space</h4>
+                            </div>
+                            <div class="volatility-item rounded-lg p-4 bg-green-100 border border-green-200" data-content="volatility-5">
+                                <h4 class="font-bold text-green-800">5. Hard Disks / SSDs</h4>
+                            </div>
+                            <div class="volatility-item rounded-lg p-4 bg-gray-100 border border-gray-200" data-content="volatility-6">
+                                <h4 class="font-bold text-gray-800">6. Archives & Backups</h4>
+                                <p class="text-sm text-gray-700">Least Volatile</p>
+                            </div>
+                        </div>
+                        <div id="volatility-details" class="flex-1 mt-6 md:mt-0 p-6 bg-gray-50 rounded-lg min-h-[200px]">
+                            <!-- Details will be injected here by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Chain of Custody -->
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Step 2: Evidence Handling & Chain of Custody</h3>
+                    <p class="mt-2 text-gray-600">Once evidence is identified, it must be handled meticulously. The Chain of Custody (CoC) is a formal document that tracks the evidence from cradle to grave. An unbroken chain is essential for the evidence to be admissible in court. Explore the timeline of a sample case below.</p>
+                    <div class="mt-6">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-semibold text-lg text-gray-800">1. Collection (10:30 AM)</h4>
+                            <p class="text-gray-600">An investigator and a witness from HR seize an employee's laptop. It's photographed, labeled, and sealed in an evidence bag. The first entry on the CoC form is created, documenting who, what, where, and when.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-semibold text-lg text-gray-800">2. Transport (10:45 AM)</h4>
+                            <p class="text-gray-600">The sealed evidence is transported directly to the secure forensics lab by the investigator. There are no detours or unauthorized stops.</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-semibold text-lg text-gray-800">3. Intake into Lab (11:00 AM)</h4>
+                            <p class="text-gray-600">The evidence is logged into the lab's system. The investigator signs the CoC to transfer custody to the lab's evidence custodian, who also signs. The reason for transfer is noted: "Secure storage pending analysis."</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <h4 class="font-semibold text-lg text-gray-800">4. Analysis (Next Day, 9:00 AM)</h4>
+                            <p class="text-gray-600">The investigator signs the evidence out from the custodian. This transfer is again logged on the CoC. After analysis, the evidence is returned to the locker, and another CoC entry is made. This creates a complete, unbroken audit trail.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Creating Forensic Images -->
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Step 3: Creating Forensic Images</h3>
+                    <p class="mt-2 text-gray-600">A forensic image is a bit-for-bit copy of an entire storage device, which is fundamentally different from a simple file copy. This process captures all data, including deleted files and hidden information, into a verifiable file that becomes the primary evidence for analysis.</p>
+                    <div class="mt-6 grid md:grid-cols-2 gap-6">
+                        <div class="p-6 border rounded-lg bg-blue-50 border-blue-200">
+                            <h4 class="font-bold text-xl text-blue-800">Disk Imaging</h4>
+                            <ul class="mt-4 space-y-2 text-blue-900 list-disc list-inside">
+                                <li><strong>Target:</strong> Hard Drives, SSDs, USBs</li>
+                                <li><strong>Goal:</strong> Capture long-term, stored state</li>
+                                <li><strong>When:</strong> After volatile data collection (system off)</li>
+                                <li><strong>Captures:</strong> All files, deleted data, slack space</li>
+                                <li><strong>Key Tool:</strong> Hardware write-blocker</li>
+                            </ul>
+                        </div>
+                        <div class="p-6 border rounded-lg bg-purple-50 border-purple-200">
+                            <h4 class="font-bold text-xl text-purple-800">Memory Imaging</h4>
+                            <ul class="mt-4 space-y-2 text-purple-900 list-disc list-inside">
+                                <li><strong>Target:</strong> RAM (Volatile Memory)</li>
+                                <li><strong>Goal:</strong> Capture live, running state</li>
+                                <li><strong>When:</strong> First step in collection (system on)</li>
+                                <li><strong>Captures:</strong> Malware, passwords, network connections</li>
+                                <li><strong>Key Tool:</strong> Specialized software (e.g., FTK Imager Lite)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forensic Toolkit Section -->
+            <section id="toolkit" class="content-section">
+                <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-800">Forensic Toolkit: Interactive Concepts</h2>
+                    <p class="mt-4 text-lg text-gray-600">Forensic analysis relies on specialized tools and techniques. This section provides hands-on demonstrations of two fundamental concepts: cryptographic hashing for integrity verification and file carving for recovering deleted data.</p>
+                </div>
+
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Live Hash Calculator (SHA-256)</h3>
+                    <p class="mt-2 text-gray-600">A hash is a "digital fingerprint" of data. Any change to the input data, even a single character, will result in a completely different hash. This is how investigators verify that their forensic image is an exact, unaltered copy of the original evidence. Type in the box below to see it in action.</p>
+                    <div class="mt-6">
+                        <label for="hash-input" class="block text-sm font-medium text-gray-700">Input Data:</label>
+                        <textarea id="hash-input" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">This is the original evidence file. Its integrity is critical.</textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">SHA-256 Hash Output:</label>
+                        <div id="hash-output" class="mt-1 p-3 font-mono text-sm bg-gray-100 rounded-md text-gray-800 break-all"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary & Lab Section -->
+            <section id="summary" class="content-section">
+                 <div class="bg-white p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-800">Summary & Key Takeaways</h2>
+                    <p class="mt-4 text-lg text-gray-600">Mastering these foundational principles is the key to conducting successful and defensible digital forensic investigations. We've covered the critical importance of collecting data in the correct order, maintaining an unbroken chain of custody, and creating perfect forensic images.</p>
+                     <ul class="mt-6 space-y-3 text-gray-600 list-disc list-inside">
+                         <li><strong>Follow the Order of Volatility:</strong> From RAM to Hard Disk, never the other way around.</li>
+                         <li><strong>Integrity is Everything:</strong> Use write-blockers and work only on forensic copies.</li>
+                         <li><strong>The CoC is Your Proof:</strong> Meticulous documentation is non-negotiable.</li>
+                         <li><strong>Image, Don't Just Copy:</strong> A bit-for-bit forensic image is the only acceptable working copy.</li>
+                     </ul>
+                </div>
+                <div class="mt-8 bg-white p-8 rounded-xl shadow-sm">
+                    <h3 class="text-2xl font-semibold text-gray-800">Hands-On Lab: Imaging a Compromised USB Drive</h3>
+                    <div class="mt-4 text-gray-600 space-y-4">
+                        <p><strong>Scenario:</strong> You are a junior forensic investigator. An employee is suspected of exfiltrating company data using a personal USB drive. The 16GB USB drive has been seized and is now in your possession, properly documented in a Chain of Custody form. Your task is to create two separate forensic images of this drive for analysis.</p>
+                        <p><strong>Evidence Device (Source):</strong> `/dev/sdb` (in a Linux environment)</p>
+                        <p><strong>Tasks:</strong></p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>On a Linux forensic workstation, use the `dd` command-line utility to create a RAW image of the USB drive. Name the image file `case001_usb_raw.dd`.</li>
+                            <li>Before and after the imaging process, calculate the SHA-256 hash of the original USB drive (`/dev/sdb`) and the created image file (`case001_usb_raw.dd`) to verify integrity.</li>
+                            <li>Describe the high-level steps you would take to create a second, compressed image in the `.E01` format using a GUI tool like FTK Imager on a Windows workstation.</li>
+                        </ol>
+                    </div>
+                    <button id="toggle-solution-btn" class="mt-6 inline-block bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors">Show Solution</button>
+                    <div id="solution-container" class="hidden mt-6 border-t pt-6 solution-container">
+                        <h4 class="text-xl font-bold text-gray-800">Lab Solution & Explanation</h4>
+                        
+                        <div class="mt-4">
+                            <h5 class="font-semibold text-lg text-gray-700">Part 1 & 2: Using `dd` and Verifying Hashes</h5>
+                            <p class="text-sm text-gray-500 mb-2">The following commands should be run in a Linux terminal.</p>
+                            <div class="bg-gray-800 text-white p-4 rounded-lg font-mono text-sm">
+                                <p class="text-green-400"># Step 1: Calculate the hash of the original source drive first.</p>
+                                <p>$ sudo sha256sum /dev/sdb</p>
+                                <p class="text-gray-400">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  /dev/sdb</p>
+                                <br>
+                                <p class="text-green-400"># Step 2: Create the RAW forensic image using dd.</p>
+                                <p>$ sudo dd if=/dev/sdb of=case001_usb_raw.dd bs=4K conv=noerror,sync</p>
+                                <br>
+                                <p class="text-green-400"># Step 3: Calculate the hash of the newly created image file.</p>
+                                <p>$ sha256sum case001_usb_raw.dd</p>
+                                <p class="text-gray-400">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  case001_usb_raw.dd</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                             <h5 class="font-semibold text-lg text-gray-700">Part 3: Using FTK Imager (GUI)</h5>
+                            <ol class="list-decimal list-inside space-y-2 mt-2 text-gray-600">
+                                <li>Connect the source USB drive to the Windows workstation via a hardware write-blocker.</li>
+                                <li>Open FTK Imager and go to `File > Create Disk Image`.</li>
+                                <li>Select the source evidence device (the USB drive).</li>
+                                <li>Click `Add...` for the Image Destination. Select `E01` as the image type.</li>
+                                <li>Fill in the case evidence information (Case Number, Examiner, etc.).</li>
+                                <li>Set the destination path and filename (e.g., `case001_usb_e01`).</li>
+                                <li>Ensure the "Verify images after they are created" checkbox is ticked.</li>
+                                <li>Click `Start`. FTK Imager will automatically hash the source, create the image, then hash the image and report if the hashes match.</li>
+                             </ol>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t">
+                            <h4 class="text-xl font-bold text-gray-800">Explanation</h4>
+                            <div class="mt-4 text-gray-600 space-y-4">
+                                <p>This solution is correct because it adheres strictly to forensic best practices for imaging and verification.</p>
+                                <p><strong>For `dd`:</strong> The command `dd if=/dev/sdb of=case001_usb_raw.dd` performs a direct bit-for-bit copy from the input file (`if`), which is the entire physical device `/dev/sdb`, to the output file (`of`). The options `conv=noerror,sync` are crucial: `noerror` tells `dd` to continue copying even if it encounters read errors on the source drive (common with damaged media), and `sync` fills any blocks with errors with null bytes, preserving the sector alignment and ensuring the output image has the exact same size as the source.</p>
+                                <p><strong>For Verification:</strong> Calculating the hash of the source drive **before** imaging establishes its original digital fingerprint. After creating the image, we hash the image file itself. The fact that the two SHA-256 hashes are identical (`e3b0...`) provides mathematical proof that the copy is perfect and unaltered. This is the cornerstone of verifying evidence integrity.</p>
+                                <p><strong>For FTK Imager:</strong> This method is correct because it uses a trusted GUI tool that automates the verification process. Using a hardware write-blocker is mandatory to prevent any accidental writes to the source evidence. The `.E01` format is a superior choice for evidence management as it includes compression, metadata, and internal hash verification, all within the image files themselves, making the evidence more self-contained and robust.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            const setActiveLink = (hash) => {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.hash === hash);
+                });
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', section.id === hash.substring(1));
+                });
+            };
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    setActiveLink(targetId);
+                });
+            });
+
+            const initialHash = window.location.hash || '#intro';
+            setActiveLink(initialHash);
+            
+            const volatilityData = {
+                'volatility-1': {
+                    title: 'Registers & CPU Cache',
+                    text: 'This is data the CPU is actively using at this exact moment. It is extremely volatile and changes constantly. It represents the most ephemeral state of the system and is lost instantly without power.'
+                },
+                'volatility-2': {
+                    title: 'Network State',
+                    text: 'Includes routing tables, ARP cache, active connections, and listening ports. This shows what the computer is communicating with right now. It is very volatile as connections close and caches time out.'
+                },
+                'volatility-3': {
+                    title: 'RAM (Random Access Memory)',
+                    text: 'The system\'s main memory, holding all running applications. It can contain passwords, encryption keys, un-saved documents, and malware that was never written to disk. All data is lost when power is cut.'
+                },
+                'volatility-4': {
+                    title: 'Temporary File Systems & Swap Space',
+                    text: 'This is "virtual memory" on the hard disk where the OS moves inactive data from RAM. This data is often, but not always, deleted upon reboot. It persists longer than RAM but is not for long-term storage.'
+                },
+                'volatility-5': {
+                    title: 'Data on Hard Disks / SSDs',
+                    text: 'This is persistent data that survives a reboot, including user files, deleted files in unallocated space, and the OS itself. While less volatile, it can still be modified or overwritten.'
+                },
+                'volatility-6': {
+                    title: 'Archived Data and Backups',
+                    text: 'Data on external drives, network shares, or cloud storage. This is the least volatile data, as it is typically static and changes infrequently, providing a historical snapshot.'
+                }
+            };
+            
+            const volatilityStack = document.getElementById('volatility-stack');
+            const volatilityDetails = document.getElementById('volatility-details');
+            
+            const updateDetails = (key) => {
+                const content = volatilityData[key];
+                if(content){
+                    volatilityDetails.innerHTML = `<h4 class="font-bold text-lg text-gray-800">${content.title}</h4><p class="mt-2 text-gray-600">${content.text}</p>`;
+                }
+            };
+
+            if (volatilityStack) {
+                volatilityStack.addEventListener('click', (e) => {
+                    const item = e.target.closest('.volatility-item');
+                    if (item) {
+                        const contentKey = item.dataset.content;
+                        updateDetails(contentKey);
+                    }
+                });
+                updateDetails('volatility-3');
+            }
+
+            const hashInput = document.getElementById('hash-input');
+            const hashOutput = document.getElementById('hash-output');
+
+            async function calculateHash(text) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(text);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                return hashHex;
+            }
+
+            async function updateHash() {
+                if (!hashInput) return;
+                const text = hashInput.value;
+                if(text) {
+                    const hash = await calculateHash(text);
+                    hashOutput.textContent = hash;
+                } else {
+                    hashOutput.textContent = '';
+                }
+            }
+            
+            if (hashInput) {
+                hashInput.addEventListener('input', updateHash);
+                updateHash();
+            }
+            
+            const toggleBtn = document.getElementById('toggle-solution-btn');
+            const solutionContainer = document.getElementById('solution-container');
+
+            if(toggleBtn && solutionContainer) {
+                toggleBtn.addEventListener('click', () => {
+                    const isHidden = solutionContainer.classList.contains('hidden');
+                    if(isHidden){
+                        solutionContainer.classList.remove('hidden');
+                        toggleBtn.textContent = 'Hide Solution';
+                    } else {
+                        solutionContainer.classList.add('hidden');
+                        toggleBtn.textContent = 'Show Solution';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
